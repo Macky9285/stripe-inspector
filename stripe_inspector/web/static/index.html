@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StripeInspector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Stripe<span>Inspector</span></h1>
+            <p>Security research tool for Stripe API key enumeration</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-row">
+                <div class="input-group" style="flex:3;">
+                    <label>Stripe API Key</label>
+                    <input type="text" id="keyInput" placeholder="sk_test_... or sk_live_..." autocomplete="off" spellcheck="false">
+                </div>
+                <div class="input-group" style="flex:1;">
+                    <label>Auth Token (optional)</label>
+                    <input type="password" id="tokenInput" placeholder="Bearer token" autocomplete="off">
+                </div>
+                <button class="btn btn-primary" id="inspectBtn">Inspect</button>
+            </div>
+        </div>
+
+        <div class="status" id="status" style="display:none;"></div>
+
+        <div class="results" id="results">
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

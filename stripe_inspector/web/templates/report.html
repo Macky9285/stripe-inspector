@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StripeInspector Report</title>
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--border:#2d3140;--accent:#6c63ff;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--text:#e4e4e7;--dim:#71717a;--bright:#fafafa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;padding:40px 20px}
+.container{max-width:900px;margin:0 auto}
+h1{font-size:24px;color:var(--bright);margin-bottom:4px}
+h1 span{color:var(--accent)}
+.meta{font-size:12px;color:var(--dim);margin-bottom:24px}
+.badge{display:inline-block;padding:6px 14px;border-radius:6px;font-size:13px;font-weight:600;margin-bottom:16px}
+.badge.live{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.badge.test{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+.perms{display:flex;gap:16px;margin-bottom:24px;font-size:13px}
+.perms .ok{color:var(--green)}.perms .no{color:var(--red)}.perms .err{color:var(--yellow)}
+.section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden}
+.section-title{padding:12px 18px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+.section-body{padding:16px 18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:6px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border-bottom:1px solid var(--border)}
+td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kv{display:flex;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px}
+.kv:last-child{border-bottom:none}
+.kv-k{width:180px;color:var(--dim);font-weight:500;flex-shrink:0}
+.kv-v{word-break:break-all}
+.failed{color:var(--red);font-size:13px}
+.footer{text-align:center;margin-top:32px;font-size:12px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Stripe<span>Inspector</span> Report</h1>
+<div class="meta">Generated: {{ generated_at }}</div>
+
+{% set is_live = result.is_live %}
+<div class="badge {{ 'live' if is_live else 'test' }}">
+    {{ 'RESTRICTED ' if result.is_restricted else '' }}{{ 'LIVE KEY' if is_live else 'TEST KEY' }} &mdash; {{ result.masked_key }}
+</div>
+
+{% set perms = result.permissions or {} %}
+<div class="perms">
+    <span class="ok">{{ perms.values()|select('equalto', 'allowed')|list|length }} allowed</span>
+    <span class="no">{{ perms.values()|select('equalto', 'denied')|list|length }} denied</span>
+    <span class="err">{{ perms.values()|select('equalto', 'error')|list|length }} errors</span>
+</div>
+
+{% for name, mod in (result.modules or {}).items() %}
+<div class="section">
+    <div class="section-title">{{ name }}</div>
+    <div class="section-body">
+    {% if mod.success %}
+        {% set data = mod.data %}
+        {% if name == 'account' %}
+            {% for key, val in data.items() if val is not none %}
+                {% if val is mapping %}
+                    <div class="kv"><div class="kv-k">{{ key }}</div><div class="kv-v">
+                    {% for k2, v2 in val.items() if v2 %}{{ k2 }}: {{ v2 }}{% if not loop.last %}, {% endif %}{% endfor %}
+                    </div></div>
+                {% elif val is iterable and val is not string %}
+                    <div class="kv"><div class="kv-k">{{ key }}</div><div class="kv-v">{{ val|join(', ') }}</div></div>
+                {% else %}
+                    <div class="kv"><div class="kv-k">{{ key }}</div><div class="kv-v">{{ val }}</div></div>
+                {% endif %}
+            {% endfor %}
+        {% elif name == 'balance' %}
+            <table><tr><th>Type</th><th>Amount</th><th>Currency</th></tr>
+            {% for item in data.get('available', []) %}
+                <tr><td>Available</td><td>{{ "%.2f"|format(item.amount) }}</td><td>{{ item.currency|upper }}</td></tr>
+            {% endfor %}
+            {% for item in data.get('pending', []) %}
+                <tr><td>Pending</td><td>{{ "%.2f"|format(item.amount) }}</td><td>{{ item.currency|upper }}</td></tr>
+            {% endfor %}
+            </table>
+        {% else %}
+            {% set list_keys = ['customers','charges','intents','products','payouts','subscriptions','invoices','endpoints','events','accounts'] %}
+            {% set ns = namespace(found=false) %}
+            {% for lk in list_keys %}
+                {% if data[lk] is defined and data[lk] is iterable and data[lk] is not string and not ns.found %}
+                    {% set ns.found = true %}
+                    {% set items = data[lk] %}
+                    <div style="font-size:12px;color:var(--dim);margin-bottom:8px">{{ data.get('count', items|length) }}{{ '+' if data.get('has_more') else '' }} found</div>
+                    {% if items|length > 0 %}
+                        {% set cols = [] %}
+                        {% for k in items[0].keys() if k != 'metadata' %}{% if cols.append(k) %}{% endif %}{% endfor %}
+                        <table><tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr>
+                        {% for item in items[:20] %}
+                            <tr>{% for c in cols %}<td title="{{ item[c] }}">{{ item[c] if item[c] is not none else '' }}</td>{% endfor %}</tr>
+                        {% endfor %}
+                        </table>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if not ns.found %}
+                {% for key, val in data.items() if val is not none %}
+                    <div class="kv"><div class="kv-k">{{ key }}</div><div class="kv-v">{{ val }}</div></div>
+                {% endfor %}
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <div class="failed">{{ mod.error or 'Permission denied' }}</div>
+    {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<div class="footer">
+    Generated by <strong>StripeInspector v0.1.0</strong> &mdash; github.com/mrdebugger/stripe-inspector
+</div>
+</div>
+</body>
+</html>
