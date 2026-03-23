@@ -223,26 +223,7 @@ body {
 /* (old modules-section removed — now uses .collapsible + .modules-grid-inner)
 
 .module-chip {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.module-chip input,
-.module-chip input[type="checkbox"] {
-    -webkit-appearance: none;
-    appearance: none;
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    position: absolute !important;
-    opacity: 0 !important;
-    pointer-events: none;
-    margin: 0;
-    padding: 0;
-}
-
-.module-chip span {
+    display: inline-block;
     padding: 5px 12px;
     border-radius: 6px;
     font-size: 12px;
@@ -250,16 +231,18 @@ body {
     background: var(--bg-input);
     border: 1px solid var(--border);
     color: var(--text-dim);
+    cursor: pointer;
     transition: all 0.15s;
+    user-select: none;
 }
 
-.module-chip input:checked + span {
+.module-chip.active {
     background: rgba(108, 99, 255, 0.15);
     border-color: var(--accent);
     color: var(--accent);
 }
 
-.module-chip:hover span {
+.module-chip:hover {
     border-color: var(--accent);
 }
 

@@ -55,23 +55,23 @@
             <!-- Modules grid (hidden by default) -->
             <div class="collapsible" id="modulesGrid">
                 <div class="modules-grid-inner">
-                    <label class="module-chip"><input type="checkbox" value="account" checked><span>account</span></label>
-                    <label class="module-chip"><input type="checkbox" value="balance" checked><span>balance</span></label>
-                    <label class="module-chip"><input type="checkbox" value="customers" checked><span>customers</span></label>
-                    <label class="module-chip"><input type="checkbox" value="charges" checked><span>charges</span></label>
-                    <label class="module-chip"><input type="checkbox" value="payment_intents" checked><span>payment_intents</span></label>
-                    <label class="module-chip"><input type="checkbox" value="products" checked><span>products</span></label>
-                    <label class="module-chip"><input type="checkbox" value="payouts" checked><span>payouts</span></label>
-                    <label class="module-chip"><input type="checkbox" value="subscriptions" checked><span>subscriptions</span></label>
-                    <label class="module-chip"><input type="checkbox" value="invoices" checked><span>invoices</span></label>
-                    <label class="module-chip"><input type="checkbox" value="webhooks" checked><span>webhooks</span></label>
-                    <label class="module-chip"><input type="checkbox" value="events" checked><span>events</span></label>
-                    <label class="module-chip"><input type="checkbox" value="connected" checked><span>connected</span></label>
-                    <label class="module-chip"><input type="checkbox" value="disputes" checked><span>disputes</span></label>
-                    <label class="module-chip"><input type="checkbox" value="refunds" checked><span>refunds</span></label>
-                    <label class="module-chip"><input type="checkbox" value="balance_transactions" checked><span>balance_transactions</span></label>
-                    <label class="module-chip"><input type="checkbox" value="coupons" checked><span>coupons</span></label>
-                    <label class="module-chip"><input type="checkbox" value="permission_scan"><span>permission_scan</span></label>
+                    <span class="module-chip active" data-module="account" onclick="toggleChip(this)">account</span>
+                    <span class="module-chip active" data-module="balance" onclick="toggleChip(this)">balance</span>
+                    <span class="module-chip active" data-module="customers" onclick="toggleChip(this)">customers</span>
+                    <span class="module-chip active" data-module="charges" onclick="toggleChip(this)">charges</span>
+                    <span class="module-chip active" data-module="payment_intents" onclick="toggleChip(this)">payment_intents</span>
+                    <span class="module-chip active" data-module="products" onclick="toggleChip(this)">products</span>
+                    <span class="module-chip active" data-module="payouts" onclick="toggleChip(this)">payouts</span>
+                    <span class="module-chip active" data-module="subscriptions" onclick="toggleChip(this)">subscriptions</span>
+                    <span class="module-chip active" data-module="invoices" onclick="toggleChip(this)">invoices</span>
+                    <span class="module-chip active" data-module="webhooks" onclick="toggleChip(this)">webhooks</span>
+                    <span class="module-chip active" data-module="events" onclick="toggleChip(this)">events</span>
+                    <span class="module-chip active" data-module="connected" onclick="toggleChip(this)">connected</span>
+                    <span class="module-chip active" data-module="disputes" onclick="toggleChip(this)">disputes</span>
+                    <span class="module-chip active" data-module="refunds" onclick="toggleChip(this)">refunds</span>
+                    <span class="module-chip active" data-module="balance_transactions" onclick="toggleChip(this)">balance_transactions</span>
+                    <span class="module-chip active" data-module="coupons" onclick="toggleChip(this)">coupons</span>
+                    <span class="module-chip" data-module="permission_scan" onclick="toggleChip(this)">permission_scan</span>
                     <div class="modules-actions">
                         <button class="btn btn-outline btn-xs" onclick="toggleAllModules(true)">All</button>
                         <button class="btn btn-outline btn-xs" onclick="toggleAllModules(false)">None</button>
