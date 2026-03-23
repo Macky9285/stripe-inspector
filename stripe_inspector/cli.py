@@ -7,11 +7,19 @@ from typing import Optional
 import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from stripe_inspector import __version__
 from stripe_inspector.core import StripeInspector, ALL_MODULES
 from stripe_inspector.report import generate_html_report
+from stripe_inspector.utils import format_timestamp
+
+
+def version_callback(value: bool):
+    if value:
+        print(f"stripe-inspector {__version__}")
+        raise typer.Exit()
+
 
 app = typer.Typer(
     name="stripe-inspector",
@@ -19,6 +27,13 @@ app = typer.Typer(
     add_completion=False,
 )
 console = Console()
+
+
+@app.callback()
+def main(
+    version: Optional[bool] = typer.Option(None, "--version", "-V", callback=version_callback, is_eager=True, help="Show version"),
+):
+    pass
 
 
 def render_account(data: dict):
@@ -90,12 +105,16 @@ def render_list_table(data: dict, key: str, columns: list[tuple[str, str]]):
     for col_name, _ in columns:
         table.add_column(col_name, style="bold" if col_name == "ID" else None)
 
+    timestamp_fields = {"created", "arrival_date", "current_period_start", "current_period_end"}
+
     for item in items[:20]:
         row = []
         for _, field in columns:
             val = item.get(field, "")
             if val is None:
                 val = ""
+            elif field in timestamp_fields and isinstance(val, (int, float)):
+                val = format_timestamp(val)
             row.append(str(val))
         table.add_row(*row)
 
@@ -226,6 +245,36 @@ def display_results(result: dict):
             console.print(f"[bold bright_blue]{name.upper()}[/bold bright_blue]")
             console.print(f"[dim]{json.dumps(data, indent=2, default=str)[:500]}[/dim]")
 
+        console.print()
+
+    # PII Summary
+    pii = result.get("pii", {})
+    if pii.get("total_pii_items", 0) > 0:
+        console.print("[bold bright_blue]PII EXPOSURE SUMMARY[/bold bright_blue]")
+        pii_table = Table(show_header=False, box=None, padding=(0, 2))
+        pii_table.add_column("Type", style="bold cyan", width=16)
+        pii_table.add_column("Count", justify="right", width=6)
+        pii_table.add_column("Samples")
+
+        for label, key_name in [("Emails", "emails"), ("Names", "names"), ("Phones", "phones"),
+                                 ("Cards", "cards"), ("Countries", "countries")]:
+            items = pii.get(key_name, [])
+            if items:
+                samples = ", ".join(items[:5])
+                if len(items) > 5:
+                    samples += f" (+{len(items) - 5} more)"
+                pii_table.add_row(label, str(len(items)), samples)
+
+        console.print(pii_table)
+        console.print()
+
+    # Rate limit info
+    rl = result.get("rate_limit", {})
+    if rl.get("total_requests"):
+        parts = [f"[dim]API requests: {rl['total_requests']}[/dim]"]
+        if rl.get("remaining") is not None:
+            parts.append(f"[dim]Rate limit remaining: {rl['remaining']}[/dim]")
+        console.print("  ".join(parts))
         console.print()
 
 
@@ -360,6 +409,67 @@ def list_modules():
         table.add_row(name, endpoints.get(name, ""))
 
     console.print(table)
+
+
+@app.command()
+def batch(
+    file: str = typer.Argument(..., help="File containing one Stripe key per line"),
+    output: str = typer.Option("table", "--output", "-o", help="Output format: table, json"),
+    report_dir: Optional[str] = typer.Option(None, "--report-dir", help="Directory to save HTML reports per key"),
+    modules: Optional[str] = typer.Option(None, "--modules", "-m", help="Comma-separated modules to run"),
+):
+    """Batch inspect multiple Stripe keys from a file."""
+    import os
+
+    try:
+        with open(file, "r") as f:
+            keys = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+    except FileNotFoundError:
+        console.print(f"[red]File not found: {file}[/red]")
+        raise typer.Exit(1)
+
+    if not keys:
+        console.print("[red]No keys found in file.[/red]")
+        raise typer.Exit(1)
+
+    console.print(f"[bold]Found {len(keys)} key(s) to inspect.[/bold]\n")
+
+    if report_dir:
+        os.makedirs(report_dir, exist_ok=True)
+
+    module_list = None
+    if modules:
+        module_list = [m.strip() for m in modules.split(",")]
+
+    all_results = []
+
+    for i, key in enumerate(keys, 1):
+        inspector = StripeInspector(key, modules=module_list)
+
+        if not inspector.validate_key():
+            console.print(f"[{i}/{len(keys)}] [red]Invalid key: {inspector.masked_key}[/red]")
+            continue
+
+        console.print(f"[{i}/{len(keys)}] Inspecting {inspector.masked_key}...")
+        result = inspector.inspect()
+        all_results.append(result)
+
+        if output == "table":
+            display_results(result)
+            console.print("[dim]" + "-" * 60 + "[/dim]\n")
+
+        if report_dir:
+            html = generate_html_report(result)
+            safe_name = inspector.masked_key.replace("...", "_").replace("*", "")
+            report_path = os.path.join(report_dir, f"{safe_name}.html")
+            with open(report_path, "w", encoding="utf-8") as f:
+                f.write(html)
+            console.print(f"  [green]Report: {report_path}[/green]")
+
+    if output == "json":
+        print(json.dumps(all_results, indent=2, default=str))
+
+    console.print(f"\n[bold green]Batch complete: {len(all_results)}/{len(keys)} keys inspected.[/bold green]")
 
 
 if __name__ == "__main__":

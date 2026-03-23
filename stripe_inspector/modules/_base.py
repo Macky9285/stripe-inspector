@@ -4,11 +4,27 @@ import requests
 
 STRIPE_BASE = "https://api.stripe.com"
 
+# Track rate limit info from the last response
+rate_limit_info = {
+    "remaining": None,
+    "limit": None,
+    "total_requests": 0,
+}
+
 
 def stripe_get(key: str, endpoint: str, params: dict = None) -> dict:
     url = f"{STRIPE_BASE}{endpoint}"
     resp = requests.get(url, auth=(key, ""), params=params, timeout=30)
 
+    # Track rate limits from headers
+    rate_limit_info["total_requests"] += 1
+    if "Stripe-Rate-Limit-Remaining" in resp.headers:
+        rate_limit_info["remaining"] = int(resp.headers["Stripe-Rate-Limit-Remaining"])
+    if "Stripe-Rate-Limit-Limit" in resp.headers:
+        rate_limit_info["limit"] = int(resp.headers["Stripe-Rate-Limit-Limit"])
+
+    if resp.status_code == 429:
+        raise ConnectionError("Rate limited by Stripe. Wait and retry.")
     if resp.status_code == 403:
         raise PermissionError(f"Access denied to {endpoint}")
     if resp.status_code == 401:
@@ -21,3 +37,7 @@ def stripe_get(key: str, endpoint: str, params: dict = None) -> dict:
         raise Exception(msg)
 
     return resp.json()
+
+
+def get_rate_limit_info() -> dict:
+    return dict(rate_limit_info)

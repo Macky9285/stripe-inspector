@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-24
+
+### Added
+- **Multi-key batch mode** — `stripe-inspector batch keys.txt` scans multiple keys from a file with optional per-key HTML reports
+- **PII exposure summary** — auto-detects and counts emails, names, phones, card numbers, countries across all modules
+- **Rate limit tracking** — shows API request count and remaining rate limit in output
+- **`--version` / `-V` flag** — displays current version
+- **Timestamp formatting** — Unix timestamps in tables now show human-readable dates
+
 ## [0.2.0] - 2026-03-24
 
 ### Added

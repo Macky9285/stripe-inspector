@@ -128,4 +128,12 @@ class StripeInspector:
                 }
                 result["permissions"][name] = "error"
 
+        # PII summary
+        from stripe_inspector.pii import scan_pii
+        result["pii"] = scan_pii(result)
+
+        # Rate limit info
+        from stripe_inspector.modules._base import get_rate_limit_info
+        result["rate_limit"] = get_rate_limit_info()
+
         return result
