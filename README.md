@@ -14,6 +14,10 @@
   <a href="https://github.com/mrdebugger/stripe-inspector/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrdebugger/stripe-inspector?style=flat-square" alt="License"></a>
 </p>
 
+<p align="center">
+  <img src="assets/demo.svg" width="780" alt="StripeInspector Demo">
+</p>
+
 ---
 
 StripeInspector takes a Stripe API key and enumerates everything accessible through it — account details, customers, charges, payouts, products, webhooks, and more. Built for security researchers, penetration testers, and bug bounty hunters.

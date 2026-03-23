@@ -226,12 +226,30 @@ def inspect(
     if inspector.key_type and "live" in inspector.key_type:
         console.print("[bold red]WARNING: This is a LIVE key. Data accessed is real.[/bold red]\n")
 
-    def on_progress(module_name: str):
-        console.print(f"  [dim]Scanning {module_name}...[/dim]", highlight=False)
+    import threading, itertools
 
-    console.print("[bold]Starting inspection...[/bold]")
+    spinner_running = True
+    spinner_text = "Starting..."
+
+    def spinner_thread():
+        frames = itertools.cycle(["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"])
+        while spinner_running:
+            sys.stderr.write(f"\r  {next(frames)} {spinner_text}" + " " * 20)
+            sys.stderr.flush()
+            import time; time.sleep(0.08)
+
+    t = threading.Thread(target=spinner_thread, daemon=True)
+    t.start()
+
+    def on_progress(module_name: str):
+        nonlocal spinner_text
+        spinner_text = f"Scanning {module_name}..."
+
     result = inspector.inspect(progress_callback=on_progress)
-    console.print("[bold green]Inspection complete.[/bold green]\n")
+    spinner_running = False
+    t.join(timeout=0.2)
+    sys.stderr.write("\r  Done." + " " * 40 + "\n")
+    sys.stderr.flush()
 
     if output == "json":
         print(json.dumps(result, indent=2, default=str))

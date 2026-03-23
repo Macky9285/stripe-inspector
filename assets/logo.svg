@@ -1,14 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#6c63ff"/>
-      <stop offset="100%" stop-color="#4a42d4"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <!-- Magnifying glass -->
-  <circle cx="220" cy="220" r="90" stroke="#fff" stroke-width="24" fill="none" opacity="0.9"/>
-  <line x1="285" y1="285" x2="380" y2="380" stroke="#fff" stroke-width="24" stroke-linecap="round" opacity="0.9"/>
-  <!-- Stripe S inside the glass -->
-  <path d="M200 185 C200 175 210 168 225 168 C245 168 250 178 250 185 C250 205 200 195 200 220 C200 232 210 240 230 240 C245 240 255 235 255 225" stroke="#FFD700" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <rect width="512" height="512" rx="80" fill="#0f1117"/>
+  <!-- Terminal window -->
+  <rect x="60" y="80" width="392" height="352" rx="16" fill="#1a1d27" stroke="#2d3140" stroke-width="3"/>
+  <!-- Title bar -->
+  <rect x="60" y="80" width="392" height="40" rx="16" fill="#1e2130"/>
+  <rect x="60" y="104" width="392" height="16" fill="#1e2130"/>
+  <!-- Window dots -->
+  <circle cx="88" cy="100" r="7" fill="#ef4444"/>
+  <circle cx="112" cy="100" r="7" fill="#f59e0b"/>
+  <circle cx="136" cy="100" r="7" fill="#10b981"/>
+  <!-- Terminal text -->
+  <text x="88" y="170" font-family="monospace" font-size="18" fill="#6c63ff" font-weight="bold">$</text>
+  <text x="108" y="170" font-family="monospace" font-size="18" fill="#e4e4e7"> stripe-inspector</text>
+  <!-- Key visualization -->
+  <text x="88" y="210" font-family="monospace" font-size="16" fill="#FFD700">sk_live_****...****</text>
+  <!-- Results -->
+  <text x="88" y="250" font-family="monospace" font-size="14" fill="#10b981">account</text>
+  <text x="180" y="250" font-family="monospace" font-size="14" fill="#71717a">allowed</text>
+  <text x="88" y="274" font-family="monospace" font-size="14" fill="#10b981">customers</text>
+  <text x="180" y="274" font-family="monospace" font-size="14" fill="#71717a">allowed</text>
+  <text x="88" y="298" font-family="monospace" font-size="14" fill="#10b981">charges</text>
+  <text x="180" y="298" font-family="monospace" font-size="14" fill="#71717a">allowed</text>
+  <text x="88" y="322" font-family="monospace" font-size="14" fill="#ef4444">webhooks</text>
+  <text x="180" y="322" font-family="monospace" font-size="14" fill="#71717a">denied</text>
+  <!-- Blinking cursor -->
+  <rect x="88" y="348" width="10" height="18" fill="#6c63ff" opacity="0.8"/>
 </svg>
