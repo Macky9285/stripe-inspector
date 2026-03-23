@@ -147,4 +147,8 @@ class StripeInspector:
         # Scan duration
         result["duration_seconds"] = round(time.time() - start_time, 2)
 
+        # Add human-readable timestamps alongside raw values
+        from stripe_inspector.utils import add_formatted_timestamps
+        add_formatted_timestamps(result)
+
         return result

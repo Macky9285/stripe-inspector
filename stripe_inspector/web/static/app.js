@@ -256,14 +256,14 @@ function renderKV(obj, prefix = '') {
     let html = '';
     for (const [key, val] of Object.entries(obj)) {
         if (val === null || val === undefined) continue;
+        if (key.endsWith('_formatted')) continue;
         if (typeof val === 'object' && !Array.isArray(val)) {
             html += `<div class="kv-row"><div class="kv-key">${esc(key)}</div><div class="kv-val" style="color:var(--accent);">▼</div></div>`;
             html += renderKV(val);
         } else if (Array.isArray(val)) {
             html += `<div class="kv-row"><div class="kv-key">${esc(key)}</div><div class="kv-val">${esc(val.join(', '))}</div></div>`;
         } else {
-            let display = String(val);
-            if (TIMESTAMP_FIELDS.has(key) && typeof val === 'number') display = formatTs(val) || display;
+            const display = obj[key + '_formatted'] || String(val);
             html += `<div class="kv-row"><div class="kv-key">${esc(key)}</div><div class="kv-val">${esc(display)}</div></div>`;
         }
     }
@@ -294,16 +294,15 @@ function formatTs(val) {
 
 function renderTable(items) {
     if (!items.length) return '';
-    const cols = Object.keys(items[0]).filter(k => k !== 'metadata');
+    const cols = Object.keys(items[0]).filter(k => k !== 'metadata' && !k.endsWith('_formatted'));
     let html = '<div class="table-scroll"><table class="data-table"><tr>';
     for (const col of cols) html += `<th>${esc(col)}</th>`;
     html += '</tr>';
     for (const item of items.slice(0, 20)) {
         html += '<tr>';
         for (const col of cols) {
-            let val = item[col];
+            let val = item[col + '_formatted'] || item[col];
             if (val === null || val === undefined) val = '';
-            else if (TIMESTAMP_FIELDS.has(col) && typeof val === 'number') val = formatTs(val) || val;
             else if (typeof val === 'object') val = JSON.stringify(val);
             html += `<td title="${esc(String(val))}">${esc(String(val))}</td>`;
         }

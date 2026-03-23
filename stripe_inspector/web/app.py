@@ -131,6 +131,9 @@ def create_app(token: Optional[str] = None) -> FastAPI:
             result["rate_limit"] = get_rate_limit_info()
             result["duration_seconds"] = round(time.time() - start_time, 2)
 
+            from stripe_inspector.utils import add_formatted_timestamps
+            add_formatted_timestamps(result)
+
             # Send final complete result
             done_event = {"type": "done", "result": result}
             yield f"data: {json.dumps(done_event, default=str)}\n\n"
