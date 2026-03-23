@@ -99,6 +99,7 @@ async function runInspection() {
                 } else if (data.type === 'done') {
                     currentResult = data.result;
                     statusEl.style.display = 'none';
+                    saveToHistory(currentResult);
                     renderResults(currentResult);
                 }
             }
@@ -464,6 +465,86 @@ function toggleTheme() {
         if (icon) icon.textContent = '🌙';
     }
 })();
+
+// ─── Scan History (localStorage) ───────────────────────────
+const HISTORY_KEY = 'stripe_inspector_history';
+const HISTORY_MAX = 20;
+
+function getHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch { return []; }
+}
+
+function saveToHistory(result) {
+    const history = getHistory();
+    const entry = {
+        id: Date.now(),
+        masked_key: result.masked_key,
+        key_type: result.key_type,
+        timestamp: result.timestamp,
+        modules_count: Object.keys(result.modules || {}).length,
+        allowed: Object.values(result.permissions || {}).filter(v => v === 'allowed').length,
+        result: result,
+    };
+    history.unshift(entry);
+    if (history.length > HISTORY_MAX) history.pop();
+    try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (e) {
+        // Storage full — remove oldest
+        history.pop();
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+    renderHistory();
+}
+
+function renderHistory() {
+    const el = document.getElementById('historyList');
+    if (!el) return;
+    const history = getHistory();
+    if (history.length === 0) {
+        el.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:8px;">No previous scans</div>';
+        return;
+    }
+    let html = '';
+    for (const entry of history) {
+        const isLive = entry.key_type && entry.key_type.includes('live');
+        const badge = isLive ? '<span style="color:var(--red);font-size:10px;font-weight:600;">LIVE</span>' : '<span style="color:var(--yellow);font-size:10px;font-weight:600;">TEST</span>';
+        html += `<div class="history-item" onclick="loadHistoryEntry(${entry.id})">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">${esc(entry.masked_key)}</span>
+                ${badge}
+            </div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${esc(entry.timestamp)} &middot; ${entry.allowed} modules</div>
+        </div>`;
+    }
+    html += `<div style="padding:6px 8px;"><button class="btn btn-outline btn-xs" onclick="clearHistory()" style="width:100%;">Clear history</button></div>`;
+    el.innerHTML = html;
+}
+
+function loadHistoryEntry(id) {
+    const history = getHistory();
+    const entry = history.find(e => e.id === id);
+    if (entry && entry.result) {
+        currentResult = entry.result;
+        renderResults(currentResult);
+        // Close history panel on mobile
+        document.getElementById('historyPanel').classList.remove('open');
+    }
+}
+
+function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+}
+
+function toggleHistory() {
+    document.getElementById('historyPanel').classList.toggle('open');
+}
+
+// Init history on load
+document.addEventListener('DOMContentLoaded', renderHistory);
 
 function esc(str) {
     const d = document.createElement('div');

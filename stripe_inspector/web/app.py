@@ -32,7 +32,7 @@ class ReportRequest(BaseModel):
     result: dict
 
 
-def create_app(token: Optional[str] = None) -> FastAPI:
+def create_app(token: Optional[str] = None, api_only: bool = False) -> FastAPI:
     app = FastAPI(
         title="StripeInspector",
         description="Security research tool for Stripe API key enumeration",
@@ -190,12 +190,17 @@ def create_app(token: Optional[str] = None) -> FastAPI:
 
         return HTMLResponse(content=report["html"])
 
-    @app.get("/", response_class=HTMLResponse)
-    async def index():
-        index_path = os.path.join(STATIC_DIR, "index.html")
-        with open(index_path, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read())
+    if not api_only:
+        @app.get("/", response_class=HTMLResponse)
+        async def index():
+            index_path = os.path.join(STATIC_DIR, "index.html")
+            with open(index_path, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
 
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    else:
+        @app.get("/")
+        async def index():
+            return {"name": "StripeInspector", "version": __version__, "docs": "/docs"}
 
     return app

@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f1117'/><text x='50' y='68' font-size='55' text-anchor='middle' font-family='monospace' fill='%236c63ff'>SI</text></svg>">
 </head>
 <body>
     <!-- Top nav bar -->
@@ -20,6 +21,7 @@
                 <a href="#" onclick="document.getElementById('instructionsModal').classList.add('open'); return false;">Docs</a>
                 <a href="https://github.com/mrdebugger/stripe-inspector" target="_blank">GitHub</a>
                 <a href="https://pypi.org/project/stripe-inspector/" target="_blank">PyPI</a>
+                <a href="#" onclick="toggleHistory(); return false;" title="Scan history">History</a>
                 <a href="#" onclick="toggleTheme(); return false;" id="themeIcon" title="Toggle theme">☀️</a>
             </div>
         </div>
@@ -199,6 +201,15 @@ stripe-inspector serve --port 9000 --token mysecret</code></pre>
                 </ul>
             </div>
         </div>
+    </div>
+
+    <!-- History Panel -->
+    <div class="history-panel" id="historyPanel">
+        <div class="history-header">
+            <span>Scan History</span>
+            <span class="modal-close" onclick="toggleHistory()">&times;</span>
+        </div>
+        <div id="historyList"></div>
     </div>
 
     <!-- Share Modal -->

@@ -383,16 +383,19 @@ def serve(
     host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host to bind to"),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on"),
     token: Optional[str] = typer.Option(None, "--token", "-t", help="Bearer token for API auth"),
+    api_only: bool = typer.Option(False, "--api-only", help="Start API server without web UI"),
 ):
     """Start the web UI server."""
     import uvicorn
     from stripe_inspector.web.app import create_app
 
-    web_app = create_app(token=token)
+    web_app = create_app(token=token, api_only=api_only)
 
+    mode = "API only" if api_only else "Web UI"
     console.print(Panel(
-        f"[bold green]StripeInspector Web UI[/bold green]\n\n"
+        f"[bold green]StripeInspector {mode}[/bold green]\n\n"
         f"URL: [link]http://{host}:{port}[/link]\n"
+        f"{'[dim]API endpoints: /api/health, /api/inspect, /api/inspect/stream[/dim]' if api_only else ''}\n"
         f"Auth: {'[yellow]Token required[/yellow]' if token else '[dim]None (local only)[/dim]'}",
         border_style="bright_blue",
     ))
