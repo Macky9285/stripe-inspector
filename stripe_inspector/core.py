@@ -7,14 +7,19 @@ from typing import Optional
 from stripe_inspector.modules import (
     account,
     balance,
+    balance_transactions,
     charges,
     connected,
+    coupons,
     customers,
+    disputes,
     events,
     invoices,
     payment_intents,
     payouts,
+    permission_scan,
     products,
+    refunds,
     subscriptions,
     webhooks,
 )
@@ -32,6 +37,11 @@ ALL_MODULES = {
     "webhooks": webhooks,
     "events": events,
     "connected": connected,
+    "disputes": disputes,
+    "refunds": refunds,
+    "balance_transactions": balance_transactions,
+    "coupons": coupons,
+    "permission_scan": permission_scan,
 }
 
 KEY_PATTERNS = {

@@ -11,11 +11,41 @@ const resultsContent = document.getElementById('resultsContent');
 inspectBtn.addEventListener('click', runInspection);
 keyInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') runInspection(); });
 
+function getSelectedModules() {
+    const checkboxes = document.querySelectorAll('.module-chip input');
+    const selected = [];
+    checkboxes.forEach(cb => { if (cb.checked) selected.push(cb.value); });
+    return selected;
+}
+
+function updateModulesCount() {
+    const total = document.querySelectorAll('.module-chip input').length;
+    const selected = getSelectedModules().length;
+    const el = document.getElementById('modulesCount');
+    el.textContent = selected === total ? 'All selected' : `${selected}/${total} selected`;
+}
+
+function toggleAllModules(state) {
+    document.querySelectorAll('.module-chip input').forEach(cb => cb.checked = state);
+    updateModulesCount();
+}
+
+document.querySelectorAll('.module-chip input').forEach(cb => {
+    cb.addEventListener('change', updateModulesCount);
+});
+
 async function runInspection() {
     const key = keyInput.value.trim();
     if (!key) return;
 
     const token = tokenInput.value.trim();
+    const modules = getSelectedModules();
+    if (modules.length === 0) {
+        statusEl.style.display = 'block';
+        statusEl.className = 'status error';
+        statusEl.textContent = 'Select at least one module';
+        return;
+    }
 
     inspectBtn.disabled = true;
     resultsEl.style.display = 'none';
@@ -26,11 +56,15 @@ async function runInspection() {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
+    const total = document.querySelectorAll('.module-chip input').length;
+    const body = { key };
+    if (modules.length < total) body.modules = modules;
+
     try {
         const resp = await fetch(`${API_BASE}/api/inspect`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ key }),
+            body: JSON.stringify(body),
         });
 
         if (!resp.ok) {

@@ -139,7 +139,40 @@ MODULE_RENDERERS = {
     "connected": lambda d: render_list_table(d, "accounts", [
         ("ID", "id"), ("Email", "email"), ("Country", "country"), ("Type", "type"),
     ]),
+    "disputes": lambda d: render_list_table(d, "disputes", [
+        ("ID", "id"), ("Amount", "amount"), ("Currency", "currency"), ("Status", "status"), ("Reason", "reason"),
+    ]),
+    "refunds": lambda d: render_list_table(d, "refunds", [
+        ("ID", "id"), ("Amount", "amount"), ("Currency", "currency"), ("Status", "status"), ("Reason", "reason"),
+    ]),
+    "balance_transactions": lambda d: render_list_table(d, "transactions", [
+        ("ID", "id"), ("Amount", "amount"), ("Net", "net"), ("Fee", "fee"), ("Type", "type"),
+    ]),
+    "coupons": lambda d: render_list_table(d, "coupons", [
+        ("ID", "id"), ("Name", "name"), ("% Off", "percent_off"), ("Valid", "valid"),
+    ]),
+    "permission_scan": lambda d: (render_permission_scan(d), ""),
 }
+
+
+def render_permission_scan(data: dict):
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("Status", width=3)
+    table.add_column("Endpoint")
+
+    for name in data.get("allowed", []):
+        table.add_row("[green]OK[/green]", name)
+    for name in data.get("denied", []):
+        table.add_row("[red]NO[/red]", name)
+    for err in data.get("errors", []):
+        table.add_row("[yellow]??[/yellow]", f"{err['endpoint']} ({err.get('error', '')})")
+
+    console.print(f"  [green]{data.get('allowed_count', 0)}[/green] allowed / "
+                  f"[red]{data.get('denied_count', 0)}[/red] denied / "
+                  f"[yellow]{data.get('error_count', 0)}[/yellow] errors "
+                  f"out of {data.get('total_endpoints', 0)} endpoints\n")
+
+    return table
 
 
 def display_results(result: dict):
@@ -201,6 +234,7 @@ def inspect(
     key: str = typer.Argument(..., help="Stripe API key to inspect"),
     output: str = typer.Option("table", "--output", "-o", help="Output format: table, json"),
     report: Optional[str] = typer.Option(None, "--report", "-r", help="Generate HTML report to file"),
+    pdf: Optional[str] = typer.Option(None, "--pdf", help="Generate PDF report to file"),
     modules: Optional[str] = typer.Option(None, "--modules", "-m", help="Comma-separated modules to run"),
     no_color: bool = typer.Option(False, "--no-color", help="Disable colored output"),
 ):
@@ -260,7 +294,17 @@ def inspect(
         html = generate_html_report(result)
         with open(report, "w", encoding="utf-8") as f:
             f.write(html)
-        console.print(f"\n[green]Report saved to {report}[/green]")
+        console.print(f"\n[green]HTML report saved to {report}[/green]")
+
+    if pdf:
+        try:
+            from stripe_inspector.report import generate_pdf_report
+            pdf_bytes = generate_pdf_report(result)
+            with open(pdf, "wb") as f:
+                f.write(pdf_bytes)
+            console.print(f"[green]PDF report saved to {pdf}[/green]")
+        except ImportError as e:
+            console.print(f"[red]{e}[/red]")
 
 
 @app.command()
@@ -305,6 +349,11 @@ def list_modules():
         "webhooks": "/v1/webhook_endpoints",
         "events": "/v1/events",
         "connected": "/v1/accounts",
+        "disputes": "/v1/disputes",
+        "refunds": "/v1/refunds",
+        "balance_transactions": "/v1/balance_transactions",
+        "coupons": "/v1/coupons",
+        "permission_scan": "all endpoints (35+)",
     }
 
     for name in ALL_MODULES:

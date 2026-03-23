@@ -1,4 +1,4 @@
-"""HTML report generator."""
+"""HTML and PDF report generators."""
 
 import json
 import os
@@ -23,3 +23,17 @@ def generate_html_report(result: dict) -> str:
         result_json=json.dumps(result, indent=2, default=str),
         generated_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"),
     )
+
+
+def generate_pdf_report(result: dict) -> bytes:
+    try:
+        from weasyprint import HTML
+    except ImportError:
+        raise ImportError(
+            "PDF generation requires weasyprint. Install it with: "
+            "pip install stripe-inspector[pdf]"
+        )
+
+    html_content = generate_html_report(result)
+    pdf_bytes = HTML(string=html_content).write_pdf()
+    return pdf_bytes
