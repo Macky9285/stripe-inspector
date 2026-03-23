@@ -24,12 +24,16 @@ StripeInspector takes a Stripe API key and enumerates everything accessible thro
 
 ## Features
 
-- **12 inspection modules** — account, balance, customers, charges, payment intents, products, payouts, subscriptions, invoices, webhooks, events, connected accounts
+- **17 inspection modules** — account, balance, customers, charges, payment intents, products, payouts, subscriptions, invoices, webhooks, events, connected accounts, disputes, refunds, balance transactions, coupons
+- **Permission scanner** — probes 35+ Stripe API endpoints to build a full access matrix
 - **CLI + Web UI** — both treated as first-class interfaces
-- **3 output formats** — colored terminal tables, JSON, standalone HTML reports
+- **5 output formats** — colored terminal tables, JSON, HTML inspection reports, PDF, CSV
+- **Deep pagination** — `--deep` fetches all pages, not just first 100
+- **PII exposure summary** — auto-detects emails, names, phones, card numbers across all modules
 - **Key type detection** — auto-identifies test/live, secret/restricted keys
-- **Permission mapping** — shows which API endpoints the key can access
-- **Self-hosted web UI** — dark-themed dashboard with FastAPI backend
+- **Multi-key batch mode** — scan a list of keys from a file
+- **Diff mode** — compare permissions between two keys
+- **Self-hosted web UI** — dark/light theme, real-time SSE streaming, shareable inspections
 - **Optional auth** — bearer token support for securing the web UI
 
 ## Installation
@@ -44,6 +48,12 @@ Or with [uv](https://docs.astral.sh/uv/):
 uv pip install stripe-inspector
 ```
 
+For PDF report support:
+
+```bash
+pip install stripe-inspector[pdf]
+```
+
 ## Quick Start
 
 ### CLI
@@ -55,11 +65,26 @@ stripe-inspector inspect sk_test_xxxx
 # JSON output (pipe to jq, scripts, etc.)
 stripe-inspector inspect sk_test_xxxx --output json
 
-# Generate a standalone HTML report
+# Generate an HTML inspection report
 stripe-inspector inspect sk_test_xxxx --report findings.html
 
-# Inspect specific modules only
+# Deep scan — fetch all pages
+stripe-inspector inspect sk_test_xxxx --deep
+
+# Specific modules only
 stripe-inspector inspect sk_test_xxxx --modules account,customers,charges
+
+# Silent mode — no table output, just save report
+stripe-inspector inspect sk_test_xxxx --silent --report findings.html
+
+# Export per-module CSV files
+stripe-inspector inspect sk_test_xxxx --csv ./output
+
+# Batch scan multiple keys
+stripe-inspector batch keys.txt --report-dir ./reports
+
+# Compare two keys
+stripe-inspector diff sk_test_key1 sk_test_key2
 
 # List all available modules
 stripe-inspector list-modules
@@ -78,7 +103,7 @@ stripe-inspector serve --port 9000 --token mysecrettoken
 stripe-inspector serve --host 0.0.0.0 --token mysecrettoken
 ```
 
-Open `http://localhost:8000` in your browser, paste a key, and hit Inspect.
+Open `http://localhost:8000` in your browser, paste a key, and hit Inspect. The web UI features real-time progress streaming, module selection, dark/light theme, and shareable inspection links.
 
 ## Modules
 
@@ -96,6 +121,11 @@ Open `http://localhost:8000` in your browser, paste a key, and hit Inspect.
 | `webhooks` | `/v1/webhook_endpoints` | Endpoint URLs, subscribed event types |
 | `events` | `/v1/events` | Recent API activity and event log |
 | `connected` | `/v1/accounts` | Connected accounts (Stripe Connect platforms) |
+| `disputes` | `/v1/disputes` | Chargebacks, fraud disputes, resolution status |
+| `refunds` | `/v1/refunds` | Refund amounts, reasons, associated charges |
+| `balance_transactions` | `/v1/balance_transactions` | Full money flow: charges, fees, payouts, refunds |
+| `coupons` | `/v1/coupons` | Discount codes, percent/amount off, redemption counts |
+| `permission_scan` | 35+ endpoints | Full endpoint access matrix (allowed/denied/error) |
 
 ## Key Types
 
@@ -106,12 +136,14 @@ Open `http://localhost:8000` in your browser, paste a key, and hit Inspect.
 | `rk_test_` | Restricted test key | Low — limited permissions |
 | `rk_live_` | Restricted live key | Medium — limited but real data |
 
-## Security
+## Privacy & Security
 
 - Keys are **never logged or stored** to disk
 - The web UI sends keys **only to Stripe's API** from the backend — never to third parties
-- HTML reports **mask keys** (show first 8 + last 4 characters only)
+- Inspection reports **mask keys** (show first 8 + last 4 characters only)
+- Shared inspections contain **no API keys** and expire after 24 hours
 - Use `--token` to protect the web UI when exposing beyond localhost
+- All timestamps include both raw Unix epoch and human-readable format
 
 ## Disclaimer
 
