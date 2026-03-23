@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stripe-inspector"
-version = "0.2.0"
+dynamic = ["version"]
 description = "Security research tool to enumerate and inspect Stripe API keys"
 readme = "README.md"
 license = {text = "MIT"}
@@ -46,6 +46,9 @@ Issues = "https://github.com/mrdebugger/stripe-inspector/issues"
 
 [project.scripts]
 stripe-inspector = "stripe_inspector.cli:app"
+
+[tool.setuptools.dynamic]
+version = {attr = "stripe_inspector.__version__"}
 
 [tool.setuptools.packages.find]
 include = ["stripe_inspector*"]

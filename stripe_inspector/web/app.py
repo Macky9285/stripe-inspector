@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from stripe_inspector import __version__
 from stripe_inspector.core import StripeInspector
 from stripe_inspector.report import generate_html_report
 
@@ -27,7 +28,7 @@ def create_app(token: Optional[str] = None) -> FastAPI:
     app = FastAPI(
         title="StripeInspector",
         description="Security research tool for Stripe API key enumeration",
-        version="0.2.0",
+        version=__version__,
     )
 
     def verify_token(authorization: Optional[str] = Header(None)):
@@ -38,7 +39,7 @@ def create_app(token: Optional[str] = None) -> FastAPI:
 
     @app.get("/api/health")
     async def health():
-        return {"status": "ok", "version": "0.2.0"}
+        return {"status": "ok", "version": __version__}
 
     @app.post("/api/inspect")
     async def inspect_key(req: InspectRequest, authorization: Optional[str] = Header(None)):
