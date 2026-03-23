@@ -128,6 +128,42 @@ function renderResults(result) {
         html += `</div></div>`;
     }
 
+    // PII Summary
+    const pii = result.pii || {};
+    if (pii.total_pii_items > 0) {
+        html += `<div class="module-card open" onclick="toggleModule(this)">
+            <div class="module-header">
+                <span class="module-title" style="color:var(--red);">PII EXPOSURE SUMMARY</span>
+                <span class="module-badge" style="background:rgba(239,68,68,0.15);color:var(--red);">${pii.total_pii_items} items</span>
+            </div>
+            <div class="module-body">`;
+
+        const piiTypes = [
+            ['Emails', pii.emails, pii.email_count],
+            ['Names', pii.names, pii.name_count],
+            ['Phones', pii.phones, pii.phone_count],
+            ['Cards', pii.cards, pii.card_count],
+            ['Countries', pii.countries, pii.country_count],
+        ];
+        for (const [label, items, count] of piiTypes) {
+            if (count > 0) {
+                const samples = items.slice(0, 8).map(esc).join(', ');
+                const more = count > 8 ? ` <span style="color:var(--text-dim)">(+${count - 8} more)</span>` : '';
+                html += `<div class="kv-row"><div class="kv-key">${label} (${count})</div><div class="kv-val">${samples}${more}</div></div>`;
+            }
+        }
+        html += `</div></div>`;
+    }
+
+    // Rate limit
+    const rl = result.rate_limit || {};
+    if (rl.total_requests) {
+        html += `<div style="font-size:12px;color:var(--text-dim);margin-top:12px;">`;
+        html += `API requests: ${rl.total_requests}`;
+        if (rl.remaining !== null && rl.remaining !== undefined) html += ` | Rate limit remaining: ${rl.remaining}`;
+        html += `</div>`;
+    }
+
     // Actions
     html += `<div class="actions-bar">
         <button class="btn btn-outline" onclick="downloadJSON()">Download JSON</button>
