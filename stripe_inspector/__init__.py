@@ -1,3 +1,3 @@
 """StripeInspector - Security research tool for Stripe API key enumeration."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

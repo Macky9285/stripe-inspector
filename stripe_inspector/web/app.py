@@ -27,7 +27,7 @@ def create_app(token: Optional[str] = None) -> FastAPI:
     app = FastAPI(
         title="StripeInspector",
         description="Security research tool for Stripe API key enumeration",
-        version="0.1.0",
+        version="0.2.0",
     )
 
     def verify_token(authorization: Optional[str] = Header(None)):
@@ -38,7 +38,7 @@ def create_app(token: Optional[str] = None) -> FastAPI:
 
     @app.get("/api/health")
     async def health():
-        return {"status": "ok", "version": "0.1.0"}
+        return {"status": "ok", "version": "0.2.0"}
 
     @app.post("/api/inspect")
     async def inspect_key(req: InspectRequest, authorization: Optional[str] = Header(None)):
