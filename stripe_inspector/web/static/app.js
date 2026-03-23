@@ -492,11 +492,11 @@ function saveToHistory(result) {
     try {
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     } catch (e) {
-        // Storage full — remove oldest
         history.pop();
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     }
     renderHistory();
+    updateHistoryBadge();
 }
 
 function renderHistory() {
@@ -543,8 +543,34 @@ function toggleHistory() {
     document.getElementById('historyPanel').classList.toggle('open');
 }
 
+function updateHistoryBadge() {
+    const badge = document.getElementById('historyBadge');
+    if (!badge) return;
+    const count = getHistory().length;
+    badge.textContent = count > 0 ? count : '';
+}
+
 // Init history on load
-document.addEventListener('DOMContentLoaded', renderHistory);
+document.addEventListener('DOMContentLoaded', () => {
+    renderHistory();
+    updateHistoryBadge();
+
+    // GitHub bubble — show after 5s, hide after 7s, shows every session
+    const bubble = document.getElementById('ghBubble');
+    if (bubble) {
+        setTimeout(() => {
+            bubble.style.pointerEvents = 'auto';
+            setTimeout(() => {
+                bubble.style.animation = 'none';
+                bubble.style.opacity = '1';
+                requestAnimationFrame(() => {
+                    bubble.style.transition = 'opacity 0.5s ease';
+                    bubble.style.opacity = '0';
+                });
+            }, 7000);
+        }, 5000);
+    }
+});
 
 function esc(str) {
     const d = document.createElement('div');

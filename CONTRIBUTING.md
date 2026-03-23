@@ -39,12 +39,26 @@ stripe_inspector/
 1. Create `stripe_inspector/modules/your_module.py`:
 
 ```python
-from stripe_inspector.modules._base import stripe_get
+from stripe_inspector.modules._base import stripe_get, stripe_get_all
 
-def inspect(key: str) -> dict:
-    data = stripe_get(key, "/v1/your_endpoint", {"limit": 100})
-    # Parse and return structured data
-    return {"count": len(data.get("data", [])), "items": [...]}
+def inspect(key: str, deep: bool = False) -> dict:
+    if deep:
+        items = stripe_get_all(key, "/v1/your_endpoint")
+        has_more = False
+    else:
+        data = stripe_get(key, "/v1/your_endpoint", {"limit": 100})
+        items = data.get("data", [])
+        has_more = data.get("has_more", False)
+
+    parsed = []
+    for item in items:
+        parsed.append({
+            "id": item.get("id"),
+            # ... extract fields
+            "created": item.get("created"),
+        })
+
+    return {"count": len(parsed), "has_more": has_more, "your_items": parsed}
 ```
 
 2. Register it in `stripe_inspector/core.py`:
@@ -59,6 +73,10 @@ ALL_MODULES = {
 ```
 
 3. Add a renderer in `cli.py` under `MODULE_RENDERERS`.
+
+4. Add the module chip in `web/static/index.html` inside the modules grid.
+
+5. Add the list key to `renderModuleData()` in `web/static/app.js` and the HTML report template.
 
 ## Code Style
 

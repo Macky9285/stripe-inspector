@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-24
+
+### Added
+- **Scan history** — saved to localStorage, floating clock button with badge, slide-out panel to reload past scans (max 20)
+- **API-only mode** — `stripe-inspector serve --api-only` starts just the API without web UI
+- **GitHub corner ribbon** — diagonal octocat in top-right, waves on hover
+- **Floating social icons** — GitHub (with bounce + notification dot + "Star us" bubble) and PyPI in bottom-left
+- **Favicon** — inline SVG "SI" monogram
+- **Docker support** — `docker compose up` for one-command deployment
+
+### Changed
+- GitHub/PyPI links moved from nav bar to floating icons
+- Mobile responsive: nav padding for corner ribbon, actions bar wraps, KV rows stack, history panel 85vw
+- Timestamps formatted at core level with both raw and `_formatted` fields
+
+### Fixed
+- GitHub bubble fade-out (CSS animation override)
+- Nav items hidden under corner ribbon on mobile
+
 ## [0.5.1] - 2026-03-24
 
 ### Changed
