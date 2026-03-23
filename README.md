@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="120" alt="StripeInspector Logo">
+  <img src="https://raw.githubusercontent.com/MrDebugger/stripe-inspector/master/assets/logo.svg" width="120" alt="StripeInspector Logo">
 </p>
 
 <h1 align="center">StripeInspector</h1>
@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/demo.svg" width="780" alt="StripeInspector Demo">
+  <img src="https://raw.githubusercontent.com/MrDebugger/stripe-inspector/master/assets/demo.svg" width="780" alt="StripeInspector Demo">
 </p>
 
 ---
