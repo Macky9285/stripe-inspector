@@ -21,6 +21,17 @@ REPORT_MAX_AGE = 86400  # 24 hours
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 
+# Cache-busted index HTML — built once at import time
+_index_html = None
+def _get_index_html():
+    global _index_html
+    if _index_html is None:
+        with open(os.path.join(STATIC_DIR, "index.html"), "r", encoding="utf-8") as f:
+            _index_html = f.read()
+        _index_html = _index_html.replace('/static/app.js', f'/static/app.js?v={__version__}')
+        _index_html = _index_html.replace('/static/style.css', f'/static/style.css?v={__version__}')
+    return _index_html
+
 
 class InspectRequest(BaseModel):
     key: str
@@ -193,9 +204,7 @@ def create_app(token: Optional[str] = None, api_only: bool = False) -> FastAPI:
     if not api_only:
         @app.get("/", response_class=HTMLResponse)
         async def index():
-            index_path = os.path.join(STATIC_DIR, "index.html")
-            with open(index_path, "r", encoding="utf-8") as f:
-                return HTMLResponse(content=f.read())
+            return HTMLResponse(content=_get_index_html())
 
         app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     else:

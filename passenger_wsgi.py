@@ -55,10 +55,17 @@ def application(environ, start_response):
 
     # ─── Index page ───────────────────────────────────────────
     if path == '/' and method == 'GET' and static_dir:
-        index_path = os.path.join(static_dir, 'index.html')
-        if os.path.isfile(index_path):
-            with open(index_path, 'rb') as f:
-                data = f.read()
+        if not hasattr(application, '_index_cache'):
+            index_path = os.path.join(static_dir, 'index.html')
+            if os.path.isfile(index_path):
+                from stripe_inspector import __version__
+                with open(index_path, 'r', encoding='utf-8') as f:
+                    html = f.read()
+                html = html.replace('/static/app.js', f'/static/app.js?v={__version__}')
+                html = html.replace('/static/style.css', f'/static/style.css?v={__version__}')
+                application._index_cache = html.encode('utf-8')
+        if hasattr(application, '_index_cache'):
+            data = application._index_cache
             start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
             return [data]
 
