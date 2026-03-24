@@ -12,6 +12,7 @@
   <a href="https://pypi.org/project/stripe-inspector/"><img src="https://img.shields.io/pypi/v/stripe-inspector?color=6c63ff&style=flat-square" alt="PyPI"></a>
   <a href="https://pypi.org/project/stripe-inspector/"><img src="https://img.shields.io/pypi/pyversions/stripe-inspector?style=flat-square" alt="Python"></a>
   <a href="https://github.com/mrdebugger/stripe-inspector/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrdebugger/stripe-inspector?style=flat-square" alt="License"></a>
+  <a href="https://inspector.ijazurrahim.com"><img src="https://img.shields.io/badge/demo-live-6c63ff?style=flat-square" alt="Live Demo"></a>
 </p>
 
 <p align="center">
